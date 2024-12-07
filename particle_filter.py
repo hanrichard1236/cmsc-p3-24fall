@@ -70,7 +70,11 @@ class ParticleFilter:
         particles = []
 
         # BEGIN_YOUR_CODE ######################################################
-        raise NotImplementedError
+        for _ in range(self.num_particles):
+            pos = np.array([np.random.uniform(self.minx, self.maxx), np.random.uniform(self.miny, self.maxy)])
+            orient = np.random.rand(2) - 0.5
+            orient = orient / np.linalg.norm(orient)  # Normalize to unit vector
+            particles.append(Particle(pos, orient))
         
         # END_YOUR_CODE ########################################################
 
@@ -108,7 +112,13 @@ class ParticleFilter:
         new_particles = []
 
         # BEGIN_YOUR_CODE ######################################################
-        raise NotImplementedError
+        for p in self.particles:
+            new_particle = self.transition_sample(p, delta_angle, speed)
+            new_particle.weight = self.compute_prenorm_weight(new_particle, sensor, max_sensor_range, sensor_std, evidence)
+            new_particles.append(new_particle)
+        normalize_weights(new_particles)
+        new_particles = self.weighted_sample_w_replacement(new_particles)
+
         #Hint: when computing the weights of each particle, you will probably want
         # to use compute_prenorm_weight to compute an unnormalized weight for each
         # particle individually, and then normalize the weights of all the particles
@@ -125,7 +135,8 @@ class ParticleFilter:
         """
         weight = None
         # BEGIN_YOUR_CODE ######################################################
-        raise NotImplementedError
+        simulated_readings = sensor(particle.pos, particle.orient, max_sensor_range)
+        weight = weight_gaussian_kernel(simulated_readings, evidence, sensor_std)
         #Hint: use the weight_gaussian_kernel method
 
         
@@ -138,7 +149,18 @@ class ParticleFilter:
         """
         new_particle = None
         # BEGIN_YOUR_CODE ######################################################
-        raise NotImplementedError
+        # Rotate orientation by delta_angle
+        cos_angle = np.cos(delta_angle)
+        sin_angle = np.sin(delta_angle)
+        rotation_matrix = np.array([[cos_angle, -sin_angle], [sin_angle, cos_angle]])
+        new_orient = rotation_matrix @ particle.orient
+
+        # Move in the direction of the new orientation
+        new_pos = particle.pos + speed * new_orient
+
+        # Add noise
+        new_particle = Particle(new_pos, new_orient)
+        new_particle.add_noise()
         #Hint: rotate the orientation by delta_angle, and then move in that
         # direction at the given speed over 1 unit of time. You will need to add
         # noise at the end to simulate stochasticity in dynamics
