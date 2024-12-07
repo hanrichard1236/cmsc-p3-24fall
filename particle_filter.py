@@ -135,7 +135,7 @@ class ParticleFilter:
         """
         weight = None
         # BEGIN_YOUR_CODE ######################################################
-        simulated_readings = sensor(particle.pos, particle.orient, max_sensor_range)
+        simulated_readings = sensor(particle.pos[0], particle.pos[1], max_sensor_range)
         weight = weight_gaussian_kernel(simulated_readings, evidence, sensor_std)
         #Hint: use the weight_gaussian_kernel method
 
@@ -153,7 +153,9 @@ class ParticleFilter:
         cos_angle = np.cos(delta_angle)
         sin_angle = np.sin(delta_angle)
         rotation_matrix = np.array([[cos_angle, -sin_angle], [sin_angle, cos_angle]])
-        new_orient = rotation_matrix @ particle.orient
+
+        # Use np.matmul() for matrix multiplication
+        new_orient = np.matmul(rotation_matrix, particle.orient)
 
         # Move in the direction of the new orientation
         new_pos = particle.pos + speed * new_orient
@@ -161,6 +163,8 @@ class ParticleFilter:
         # Add noise
         new_particle = Particle(new_pos, new_orient)
         new_particle.add_noise()
+
+        return new_particle
         #Hint: rotate the orientation by delta_angle, and then move in that
         # direction at the given speed over 1 unit of time. You will need to add
         # noise at the end to simulate stochasticity in dynamics
