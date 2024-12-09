@@ -107,11 +107,11 @@ def find_best_overtake_condition(bayes_net):
     # Iterate over the conditions for MuchFaster and Early
     for muchfaster, early in conditions:
         # Define the evidence for the query
-        evidenceWin = {'MuchFaster': muchfaster, 'Early': early, 'Win': True}
+        evidenceWin = {'MuchFaster': muchfaster, 'Early': early, 'Crash': False}
         evidence = {'MuchFaster': muchfaster, 'Early': early}
         
         # Use elimination_ask to get the probability distribution for 'Overtake'
-        WinNotCrash = elimination_ask('Crash', evidenceWin, bayes_net).prob[False]
+        WinNotCrash = elimination_ask('Win', evidenceWin, bayes_net).prob[True]
 
         NotCrash = elimination_ask('Crash', evidence, bayes_net).prob[False]
 
