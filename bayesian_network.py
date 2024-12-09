@@ -107,22 +107,22 @@ def find_best_overtake_condition(bayes_net):
     # Iterate over the conditions for MuchFaster and Early
     for muchfaster, early in conditions:
         # Define the evidence for the query
+        evidenceWin = {'MuchFaster': muchfaster, 'Early': early, 'Win': True}
         evidence = {'MuchFaster': muchfaster, 'Early': early}
         
         # Use elimination_ask to get the probability distribution for 'Overtake'
-        query_result = elimination_ask('Overtake', evidence, bayes_net)
+        WinNotCrash = elimination_ask('Crash', evidenceWin, bayes_net).prob[False]
+
+        NotCrash = elimination_ask('Crash', evidence, bayes_net).prob[False]
+
+        final_prob = WinNotCrash * NotCrash
         
-        prob_overtake_true = query_result.prob[True]
-        
-        print(f"P(Overtake=True | MuchFaster={muchfaster}, Early={early}) = {prob_overtake_true}")
+        print(f"P(Overtake=True | MuchFaster={muchfaster}, Early={early}) = {final_prob}")
         
         # Track the best condition (highest probability for 'Overtake' being True)
-        if prob_overtake_true > max_probability:
-            max_probability = prob_overtake_true
+        if final_prob > max_probability:
+            max_probability = final_prob
             best_condition = (muchfaster, early)
-
-    # Output the best condition found
-    print(f"Best condition for overtaking: {best_condition} with probability {max_probability}")
 
     return best_condition
     
@@ -131,7 +131,7 @@ def find_best_overtake_condition(bayes_net):
 def main():
     bayes_net = generate_bayesnet()
     cond = find_best_overtake_condition(bayes_net)
-    #print("Best overtaking condition: MuchFaster={}, Early={}".format(cond[0],cond[1]))
+    print("Best overtaking condition: MuchFaster={}, Early={}".format(cond[0],cond[1]))
 
 if __name__ == "__main__":
     main()

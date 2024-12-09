@@ -19,7 +19,24 @@ class KalmanFilter:
         self.car = car
 
         # BEGIN_YOUR_CODE ######################################################
-        raise NotImplementedError
+        #intiial state matrix
+        self.kf.x = np.array([car.pos[0], car.pos[1], car.vel[0], car.vel[1]])
+        #state transition matrix
+        self.kf.F = np.array([[1, 0, 1, 0],
+                               [0, 1, 0, 1],
+                               [0, 0, 1, 0],
+                               [0, 0, 0, 1]])
+        #measurement matrix
+        self.kf.H = np.array([[1, 0, 0, 0],
+                               [0, 1, 0, 0]])
+        #measurement noise covariance matrix
+        self.kf.R = np.array([[variance, 0],
+                               [0, variance]])
+        #process noise covariance
+        
+        #initial state estimate
+        
+        #initial covariance matrix
 
         # END_YOUR_CODE ########################################################
 
@@ -33,7 +50,18 @@ class KalmanFilter:
         # Prediction step
         
         # BEGIN_YOUR_CODE ######################################################
-        raise NotImplementedError
+        # Prediction step
+        self.kf.predict()
+
+        # Collision check to update velocity
+        self.check_collision(other_car)
+
+        # Update step
+        if which == "gaussian":
+            self.kf.update(measurement)
+        else:
+            # Uniform noise would be treated as a more difficult measurement update
+            self.kf.update(measurement)
         
         # END_YOUR_CODE ########################################################
 
